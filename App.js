@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import Header from './Header';
+import Meteo from './Meteo';
+import SignalerIncident from './SignalerIncident';
 import Recherche from './Recherche';
 import LigneBus from './LigneBus';
 import DetailLigne from './DetailLigne';
@@ -83,44 +85,43 @@ function App() {
   }
 
   // Écran normal — UN SEUL return ← les deux anciens fusionnés ici
-  return (
-    <div className="App">
-      <Header />
-      <main className="contenu">
+ return (
+  <div className="App">
+    <Header />
+    <main className="contenu">
 
-        <p className="compteur-recherche">
-          Vous avez effectué {nbRecherches} recherche{nbRecherches > 1 ? 's' : ''}
+      <Meteo />              {/* NOUVEAU - en haut */}
+
+      <p className="compteur-recherche">
+        Vous avez effectué {nbRecherches} recherche{nbRecherches > 1 ? 's' : ''}
+      </p>
+
+      <Recherche valeur={recherche} onChange={handleRecherche} />
+
+      {lignesFiltrees.length === 0 ? (
+        <p className="aucun-resultat">Aucune ligne trouvée pour "{recherche}"</p>
+      ) : (
+        <p className="resultat-recherche">
+          {lignesFiltrees.length} ligne{lignesFiltrees.length > 1 ? 's' : ''} trouvee{lignesFiltrees.length > 1 ? 's' : ''}
         </p>
+      )}
 
-        <Recherche valeur={recherche} onChange={handleRecherche} />
+      {lignesFiltrees.map(ligne => (
+        <LigneBus
+          key={ligne.id}
+          numero={ligne.numero}
+          depart={ligne.depart}
+          arrivee={ligne.arrivee}
+          arrets={ligne.arrets}
+          estSelectionnee={ligneSelectionnee && ligneSelectionnee.id === ligne.id}
+          onClick={() => handleClickLigne(ligne)}
+        />
+      ))}
 
-        {lignesFiltrees.length === 0 ? (
-          <p className="aucun-resultat">
-            Aucune ligne trouvée pour "{recherche}"
-          </p>
-        ) : (
-          <p className="resultat-recherche">
-            {lignesFiltrees.length} ligne{lignesFiltrees.length > 1 ? 's' : ''} trouvee{lignesFiltrees.length > 1 ? 's' : ''}
-          </p>
-        )}
-
-        {lignesFiltrees.map(ligne => (
-          <LigneBus
-            key={ligne.id}
-            numero={ligne.numero}
-            depart={ligne.depart}
-            arrivee={ligne.arrivee}
-            arrets={ligne.arrets}
-            estSelectionnee={ligneSelectionnee && ligneSelectionnee.id === ligne.id}
-            onClick={() => handleClickLigne(ligne)}
-          />
-        ))}
-
-        {ligneSelectionnee && <DetailLigne ligne={ligneSelectionnee} />}
-        <Carte /> {/* NOUVEAU */}
-
-
-      </main>
+      {ligneSelectionnee && <DetailLigne ligne={ligneSelectionnee} />}
+      <Carte />
+      <SignalerIncident />   {/* NOUVEAU - en bas */}
+       </main>
       <Footer />
     </div>
   );
