@@ -5,22 +5,21 @@ import Recherche from './Recherche';
 import LigneBus from './LigneBus';
 import DetailLigne from './DetailLigne';
 import Footer from './Footer';
+import Carte from './Carte';
 
 function App() {
-  // 1. Trois etats
   const [lignes, setLignes] = useState([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
   const [recherche, setRecherche] = useState("");
   const [ligneSelectionnee, setLigneSelectionnee] = useState(null);
+  const [nbRecherches, setNbRecherches] = useState(0); // ← AJOUTÉ
 
-  // 2. Charger les donnees au demarrage
   useEffect(() => {
     fetch("http://localhost:5000/lignes")
       .then(response => {
         if (!response.ok) {
-          throw new Error(
-            "Erreur serveur : " + response.status);
+          throw new Error("Erreur serveur : " + response.status);
         }
         return response.json();
       })
@@ -33,10 +32,6 @@ function App() {
         setChargement(false);
       });
   }, []);
-
-  // 3. Le reste ne change pas (filtre, clic, etc.)
-  // ...
-
 
   const lignesFiltrees = lignes.filter(l =>
     l.depart.toLowerCase().includes(recherche.toLowerCase()) ||
@@ -58,21 +53,20 @@ function App() {
       setLigneSelectionnee(ligne);
     }
   }
-// Ecran de chargement
+
+  // Écran de chargement
   if (chargement) {
     return (
       <div className="App">
         <Header />
         <main className="contenu">
-          <p className="message-chargement">
-            Chargement des lignes...
-          </p>
+          <p className="message-chargement">Chargement des lignes...</p>
         </main>
       </div>
     );
   }
 
-  // Ecran d'erreur
+  // Écran d'erreur
   if (erreur) {
     return (
       <div className="App">
@@ -81,26 +75,14 @@ function App() {
           <div className="message-erreur">
             <p>Impossible de charger les lignes.</p>
             <p className="erreur-detail">{erreur}</p>
-            <p>Verifiez que le serveur Flask est lance
-               (python api/app.py).</p>
+            <p>Verifiez que le serveur Flask est lance (python api/app.py).</p>
           </div>
         </main>
       </div>
     );
   }
 
-  // Ecran normal (inchange par rapport au Lab 3)
-  return (
-    <div className="App">
-      <Header />
-      <main className="contenu">
-        <Recherche valeur={recherche}
-                   onChange={setRecherche} />
-        {/* ... le reste est identique au Lab 3 ... */}
-      </main>
-      <Footer />
-    </div>
-  );
+  // Écran normal — UN SEUL return ← les deux anciens fusionnés ici
   return (
     <div className="App">
       <Header />
@@ -135,6 +117,8 @@ function App() {
         ))}
 
         {ligneSelectionnee && <DetailLigne ligne={ligneSelectionnee} />}
+        <Carte /> {/* NOUVEAU */}
+
 
       </main>
       <Footer />
